@@ -63,4 +63,23 @@ public class PizzaControllerTest {
                         jsonPath("length()")
                                 .value(JdbcTestUtils.countRowsInTable(jdbcClient, PIZZAS_TABLE)));
     }
+    @Test
+    void findByNaamBevatVindtDeJuistePizzas() throws Exception {
+        mockMvc.perform(get("/pizzas")
+                .param("naamBevat", "test"))
+                .andExpectAll(
+                        status().isOk(),
+                        jsonPath("length()").value(
+                             JdbcTestUtils.countRowsInTableWhere(jdbcClient, PIZZAS_TABLE, "naam like '%test%'")));
+    }
+    @Test
+    void findByPrijsTussenVindtDeJuistePizzas() throws Exception {
+        mockMvc.perform(get("/pizzas")
+                .param("vanPrijs", "10")
+                .param("totPrijs", "20"))
+                .andExpectAll(
+                        status().isOk(),
+                        jsonPath("length()").value(JdbcTestUtils.countRowsInTableWhere(jdbcClient, PIZZAS_TABLE,
+                                "prijs between 10 and 20")));
+    }
 }

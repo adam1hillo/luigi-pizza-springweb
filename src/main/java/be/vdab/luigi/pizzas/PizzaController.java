@@ -5,8 +5,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 @RestController
@@ -31,6 +29,18 @@ class PizzaController {
     @GetMapping("pizzas")
     Stream<IdNaamPrijs> findAll() {
         return pizzaService.findAll()
+                .stream()
+                .map(IdNaamPrijs::new);
+    }
+    @GetMapping(value = "pizzas", params = "naamBevat")
+    Stream<IdNaamPrijs> findByNaamBevat(String naamBevat) {
+        return pizzaService.findByNaamBevat(naamBevat)
+                .stream()
+                .map(IdNaamPrijs::new);
+    }
+    @GetMapping(value = "pizzas", params = {"vanPrijs", "totPrijs"})
+    Stream<IdNaamPrijs> findByPrijsTussen(BigDecimal vanPrijs, BigDecimal totPrijs) {
+        return pizzaService.findByPrijsTussen(vanPrijs, totPrijs)
                 .stream()
                 .map(IdNaamPrijs::new);
     }
