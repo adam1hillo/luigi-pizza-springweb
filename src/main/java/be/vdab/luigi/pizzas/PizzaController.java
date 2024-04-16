@@ -1,5 +1,6 @@
 package be.vdab.luigi.pizzas;
 
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -53,8 +54,7 @@ class PizzaController {
         }
     }
     @PostMapping("pizzas")
-    long create(@RequestBody NieuwePizza nieuwePizza) {
-        long id = pizzaService.create(nieuwePizza);
-        return id;
+    long create(@RequestBody @Valid NieuwePizza nieuwePizza) {
+        return pizzaService.create(nieuwePizza);
     }
 }

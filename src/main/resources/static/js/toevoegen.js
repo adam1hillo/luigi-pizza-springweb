@@ -28,7 +28,8 @@ function verbergFouten() {
 }
 async function voegToe(pizza) {
     const response = await fetch("pizzas",
-            {method: "POST",
+            {
+                method: "POST",
                 headers:{'Content-Type': "application/json"},
                 body: JSON.stringify(pizza)
         });
