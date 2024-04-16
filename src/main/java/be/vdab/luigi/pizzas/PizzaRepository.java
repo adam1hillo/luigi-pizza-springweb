@@ -1,6 +1,7 @@
 package be.vdab.luigi.pizzas;
 
 import org.springframework.jdbc.core.simple.JdbcClient;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
@@ -79,5 +80,15 @@ class PizzaRepository {
                 .param(id)
                 .update();
     }
-
+    long create (Pizza pizza) {
+        String sql = """
+                insert into pizzas(naam, prijs, winst)
+                values (?, ?, ?)
+                """;
+        var keyHolder = new GeneratedKeyHolder();
+        jdbcClient.sql(sql)
+                .params(pizza.getNaam(), pizza.getPrijs(), pizza.getWinst())
+                .update(keyHolder);
+        return keyHolder.getKey().longValue();
+    }
 }
