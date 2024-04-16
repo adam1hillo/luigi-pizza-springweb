@@ -9,6 +9,8 @@ import org.springframework.test.jdbc.JdbcTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -17,12 +19,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Transactional
 @Sql("/pizzas.sql")
 @AutoConfigureMockMvc
-public class PizzaControllerTest {
+class PizzaControllerTest {
     private final static String PIZZAS_TABLE = "pizzas";
     private final MockMvc mockMvc;
     private final JdbcClient jdbcClient;
 
-    public PizzaControllerTest(MockMvc mockMvc, JdbcClient jdbcClient) {
+    PizzaControllerTest(MockMvc mockMvc, JdbcClient jdbcClient) {
         this.mockMvc = mockMvc;
         this.jdbcClient = jdbcClient;
     }
@@ -81,5 +83,12 @@ public class PizzaControllerTest {
                         status().isOk(),
                         jsonPath("length()").value(JdbcTestUtils.countRowsInTableWhere(jdbcClient, PIZZAS_TABLE,
                                 "prijs between 10 and 20")));
+    }
+    @Test
+    void deleteVerwijdertDePzza() throws Exception {
+        var id = idVanTest1Pizza();
+        mockMvc.perform(delete("/pizzas/{id}", id))
+                .andExpect(status().isOk());
+        assertThat(JdbcTestUtils.countRowsInTableWhere(jdbcClient, PIZZAS_TABLE, "id = " + id)).isZero();
     }
 }

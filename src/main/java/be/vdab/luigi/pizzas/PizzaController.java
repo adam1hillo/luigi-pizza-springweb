@@ -1,5 +1,6 @@
 package be.vdab.luigi.pizzas;
 
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -43,6 +44,11 @@ class PizzaController {
         return pizzaService.findByPrijsTussen(vanPrijs, totPrijs)
                 .stream()
                 .map(IdNaamPrijs::new);
+    }
+
+    @DeleteMapping("pizzas/{id}")
+    void delete(@PathVariable long id) {
+        pizzaService.delete(id);
     }
     private record IdNaamPrijs(long id, String naam, BigDecimal prijs) {
         IdNaamPrijs(Pizza pizza) {
