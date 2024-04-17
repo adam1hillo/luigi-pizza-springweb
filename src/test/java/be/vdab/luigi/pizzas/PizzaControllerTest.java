@@ -28,6 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class PizzaControllerTest {
     private final static Path TEST_RESOURCES = Path.of("src/test/resources");
     private final static String PIZZAS_TABLE = "pizzas";
+    private final static String PRIJZEN_TABLE = "prijzen";
     private final MockMvc mockMvc;
     private final JdbcClient jdbcClient;
 
@@ -107,6 +108,7 @@ class PizzaControllerTest {
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
         assertThat(JdbcTestUtils.countRowsInTableWhere(jdbcClient, PIZZAS_TABLE, "naam = 'test3' and id = " + responseBody)).isOne();
+        assertThat(JdbcTestUtils.countRowsInTableWhere(jdbcClient, PRIJZEN_TABLE, "prijs = 0.01 and pizzaId = " + responseBody)).isOne();
     }
     @ParameterizedTest
     @ValueSource(strings = {"pizzaZonderNaam.json", "pizzaMetLegeNaam.json", "pizzaZonderPrijs.json", "pizzaMetNegatievePrijs.json"})
@@ -118,4 +120,33 @@ class PizzaControllerTest {
                 .andExpect(status().isBadRequest());
 
     }
+    @Test
+    void patchWijzigtPrijsEnVoegtPrijsToe() throws Exception {
+        long id = idVanTest1Pizza();
+        mockMvc.perform(patch("/pizzas/{id}/prijs", id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("7.7"))
+                .andExpect(status().isOk());
+        assertThat(JdbcTestUtils.countRowsInTableWhere(jdbcClient, PIZZAS_TABLE,
+                "prijs = 7.7 and id = " + id)).isOne();
+        assertThat(JdbcTestUtils.countRowsInTableWhere(jdbcClient, PRIJZEN_TABLE,
+                "prijs = 7.7 and pizzaId = " + id)).isOne();
+    }
+    @Test
+    void patchVanOnbestaandePizzaMislukt() throws Exception {
+        mockMvc.perform(patch("/pizzas/{id}/prijs", Long.MAX_VALUE)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("7.7"))
+                .andExpect(status().isNotFound());
+    }
+    @ParameterizedTest
+    @ValueSource(strings = {"", "-7"})
+    void patchVanVerkeerdePrijsMislukt(String verkeerdePrijs) throws Exception {
+        long id = idVanTest1Pizza();
+        mockMvc.perform(patch("/pizzas/{id}/prijs", id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(verkeerdePrijs))
+                .andExpect(status().isBadRequest());
+    }
+
 }

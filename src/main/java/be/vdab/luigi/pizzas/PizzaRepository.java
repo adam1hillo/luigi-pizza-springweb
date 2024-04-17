@@ -91,4 +91,14 @@ class PizzaRepository {
                 .update(keyHolder);
         return keyHolder.getKey().longValue();
     }
+    void updatePrijs(long id, BigDecimal prijs) {
+        String sql = """
+                update pizzas
+                set prijs = ?
+                where id = ?
+                """;
+        if (jdbcClient.sql(sql).params(prijs,id).update() == 0) {
+            throw new PizzaNietGevondenException(id);
+        }
+    }
 }
