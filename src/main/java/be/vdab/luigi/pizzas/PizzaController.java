@@ -51,11 +51,7 @@ class PizzaController {
     void delete(@PathVariable long id) {
         pizzaService.delete(id);
     }
-    private record IdNaamPrijs(long id, String naam, BigDecimal prijs) {
-        IdNaamPrijs(Pizza pizza) {
-            this(pizza.getId(), pizza.getNaam(), pizza.getPrijs());
-        }
-    }
+
     @PostMapping("pizzas")
     long create(@RequestBody @Valid NieuwePizza nieuwePizza) {
         return pizzaService.create(nieuwePizza);
@@ -64,5 +60,22 @@ class PizzaController {
     void updatePrijs(@PathVariable long id, @RequestBody @NotNull @PositiveOrZero BigDecimal nieuwePrijs) {
         Prijs prijs = new Prijs(nieuwePrijs, LocalDateTime.now(), id);
         pizzaService.updatePrijs(prijs);
+    }
+
+    @GetMapping("pizzas/{id}/prijzen")
+    Stream<PrijsVanaf> findPrijzen(@PathVariable long id) {
+        return pizzaService.findPrijzen(id)
+                .stream()
+                .map(PrijsVanaf::new);
+    }
+    private record IdNaamPrijs(long id, String naam, BigDecimal prijs) {
+        IdNaamPrijs(Pizza pizza) {
+            this(pizza.getId(), pizza.getNaam(), pizza.getPrijs());
+        }
+    }
+    private record PrijsVanaf(BigDecimal prijs, LocalDateTime vanaf) {
+        PrijsVanaf(Prijs prijs) {
+            this(prijs.getPrijs(), prijs.getVanaf());
+        }
     }
 }
