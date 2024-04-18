@@ -121,6 +121,14 @@ class PizzaControllerTest {
 
     }
     @Test
+    void eenPizzaToevoegenDieAlBestaatMislukt() throws Exception {
+        var jsonData = Files.readString(TEST_RESOURCES.resolve("pizzaDieAlBestaat.json"));
+        mockMvc.perform(post("/pizzas")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonData))
+                .andExpect(status().isConflict());
+    }
+    @Test
     void patchWijzigtPrijsEnVoegtPrijsToe() throws Exception {
         long id = idVanTest1Pizza();
         mockMvc.perform(patch("/pizzas/{id}/prijs", id)
