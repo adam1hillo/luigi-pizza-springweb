@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.stream.Stream;
 
+@RequestMapping("pizzas")
 @RestController
 class PizzaController {
     private final PizzaService pizzaService;
@@ -17,52 +18,54 @@ class PizzaController {
         this.pizzaService = pizzaService;
     }
 
-    @GetMapping("pizzas/aantal")
+    @GetMapping("aantal")
     long findAantal() {
         return pizzaService.findAantal();
     }
-    @GetMapping("pizzas/{id}")
+
+    @GetMapping("{id}")
     IdNaamPrijs findById(@PathVariable long id) {
         return pizzaService.findById(id)
                 .map(IdNaamPrijs::new)
                 .orElseThrow(() -> new PizzaNietGevondenException(id));
     }
 
-    @GetMapping("pizzas")
+    @GetMapping
     Stream<IdNaamPrijs> findAll() {
         return pizzaService.findAll()
                 .stream()
                 .map(IdNaamPrijs::new);
     }
-    @GetMapping(value = "pizzas", params = "naamBevat")
+    @GetMapping(params = "naamBevat")
     Stream<IdNaamPrijs> findByNaamBevat(String naamBevat) {
         return pizzaService.findByNaamBevat(naamBevat)
                 .stream()
                 .map(IdNaamPrijs::new);
     }
-    @GetMapping(value = "pizzas", params = {"vanPrijs", "totPrijs"})
+    @GetMapping(params = {"vanPrijs", "totPrijs"})
     Stream<IdNaamPrijs> findByPrijsTussen(BigDecimal vanPrijs, BigDecimal totPrijs) {
         return pizzaService.findByPrijsTussen(vanPrijs, totPrijs)
                 .stream()
                 .map(IdNaamPrijs::new);
     }
 
-    @DeleteMapping("pizzas/{id}")
+    @DeleteMapping("{id}")
     void delete(@PathVariable long id) {
         pizzaService.delete(id);
     }
 
-    @PostMapping("pizzas")
+    @PostMapping
     long create(@RequestBody @Valid NieuwePizza nieuwePizza) {
         return pizzaService.create(nieuwePizza);
     }
-    @PatchMapping("pizzas/{id}/prijs")
+
+    @PatchMapping("{id}/prijs")
     void updatePrijs(@PathVariable long id, @RequestBody @NotNull @PositiveOrZero BigDecimal nieuwePrijs) {
         Prijs prijs = new Prijs(nieuwePrijs, LocalDateTime.now(), id);
         pizzaService.updatePrijs(prijs);
     }
 
-    @GetMapping("pizzas/{id}/prijzen")
+    @GetMapping("{id}/prijzen")
     Stream<PrijsVanaf> findPrijzen(@PathVariable long id) {
         return pizzaService.findPrijzen(id)
                 .stream()
